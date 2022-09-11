@@ -24,6 +24,9 @@ class ui_editor extends ui_component{
     }
      area.setText(result);
   }
+  String getText(){
+    return area.getText();
+  }
   void draw(){
   
   }

@@ -222,10 +222,15 @@ class compiler {
       registers.add(compileExpression(null, e, c));
     }
     ArrayList<Register> dependancies = new ArrayList<Register>(registers);
+    ArrayList<Function> functions = new ArrayList<Function>();
     ArrayList<Function> invFunctions = new ArrayList<Function>();
     for (Function f : c.functions) {
       if (isDepending(dependancies, f.entangleRegisters())) {
-        invFunctions.add(f.getInv());
+        if(!f.inv){
+           functions.add(f);
+           invFunctions.add(f.getInv());
+        }
+       
       };
     }
     for (int i=invFunctions.size() - 1; i >= 0; i--) {

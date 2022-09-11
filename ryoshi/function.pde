@@ -374,8 +374,10 @@ class Exe extends Function {
     if (config.simulator) {
       var s = "%s.exe_sim(shots=%s)";
       return String.format(s, circuit.name, config.shots);
+    }else{
+      var s = "%s.exe_actual(shots=%s)";
+      return String.format(s, circuit.name, config.shots);
     }
-    return "";
   }
   Register[] entangleRegisters() {
     return new Register[0];
@@ -394,5 +396,17 @@ class getResult extends Function {
   }
   Register[] entangleRegisters() {
     return new Register[0];
+  }
+}
+class oracle extends Function {
+  ArrayList<Function> functions = new ArrayList<Function>();
+  MarkFunc mark = null;
+  ArrayList<Function> inv_functions = new ArrayList<Function>();
+   Register[] entangleRegisters() {
+    return new Register[0];
+  }
+  String Str() {
+    var s = "%s.get_result()";
+    return String.format(s, circuit.name);
   }
 }

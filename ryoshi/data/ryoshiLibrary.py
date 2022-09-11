@@ -2,9 +2,11 @@ import json
 import matplotlib.pyplot as plt
 import qiskit.result
 from scipy.optimize import minimize, Bounds
-from qiskit import QuantumCircuit, QuantumRegister, Aer, transpile, ClassicalRegister
+from qiskit import QuantumCircuit, QuantumRegister, Aer, transpile, ClassicalRegister,IBMQ
 from qiskit.visualization import plot_histogram
 from qiskit.circuit.library import C3XGate, C4XGate
+from qiskit.providers.ibmq import least_busy
+from qiskit.tools.monitor import job_monitor
 import enum
 
 
@@ -100,7 +102,7 @@ class ryoshiRegister:
                 print("差が2のn乗でかつ一方が0であったためHを一回適応し終了")
                 return
             if self.nowValues[0] ^ minNum == self.nowValues[1] ^ maxNum:
-                self.applyX(minNum, maxNum)
+                self.applyX(minNum)
                 return
             self.applyCX(minNum, maxNum)
             return
@@ -124,7 +126,6 @@ class ryoshiRegister:
     def applyX(self, num1):
         print("移動する距離が同じ")
         for i in range(0, self.register.size):
-            print(i)
             if (self.nowValues[0] ^ num1) & 1 << i:
                 self.X(i)
         return
@@ -155,6 +156,7 @@ class ryoshiCircuit:
     result: qiskit.result.Result
     measured : list[str]
     def __init__(self, name):
+        print("start")
         self.name = name
         self.targetCircuit = QuantumCircuit(name=name)
         self.registers = {}
@@ -311,6 +313,8 @@ class ryoshiCircuit:
             self.targetCircuit.h(qRbits[0])
             self.targetCircuit.mct(qRbits[1:], qRbits[0])
             self.targetCircuit.h(qRbits[0])
+    def Entangle2(self,name:str,num1,num2):
+        self.registers[name].Entangle2(num1,num2)
 
     def measure(self, *registers):
         for r in registers:
@@ -323,6 +327,17 @@ class ryoshiCircuit:
         sim_job = simulator.run(circuit, shots=shots)
         sim_result = sim_job.result()
         self.result = sim_result
+
+    def exe_actual(self,shots):
+        IBMQ.load_account()
+        provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
+        backend_list = provider.backends()
+        backend = least_busy(backend_list)
+        circuit = transpile(self.targetCircuit, backend=backend)
+        job = backend.run(circuit, shots=shots)
+        job_monitor(job, interval=2)
+        result = job.result()
+        self.result = result
 
     def get_result(self,*names):
         shots = self.result.to_dict()['results'][0]['shots']
@@ -348,6 +363,7 @@ class ryoshiCircuit:
                 results2[keyname] += c
             else:
                 results2[keyname] = c
+
 
         # for key, c in counts.items():
         #     bits = key.split()

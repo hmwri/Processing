@@ -1,13 +1,31 @@
 abstract class ui_object {
-  boolean active = true;
+  protected boolean active = true;
   
+}
+abstract class ui_function extends ui_object {
 }
 
 abstract class ui_component  extends ui_object{
   ui_rect rect;
-  ArrayList<ui_component> children = new ArrayList<ui_component>();
+  ui_component parent = null;
+  ArrayList<ui_function> functions = new ArrayList<ui_function>();
+  protected ArrayList<ui_component> children = new ArrayList<ui_component>();
   ui_component(ui_rect _rect) {
     rect = _rect;
+  }
+  void addChild(ui_component uc){
+    children.add(uc);
+    uc.parent = this;
+    uc.rect.x+=rect.x;
+    uc.rect.y+=rect.y;
+    uc.resetChildRect(rect);
+  }
+  void resetChildRect(ui_rect rect) {
+    for(ui_component c: children){
+      c.rect.x += rect.x;
+      c.rect.y += rect.y;
+      c.resetChildRect(rect);
+    }
   }
   boolean isOnMouse(){
     if(aida(mouseX,rect.x,rect.x+rect.w)&&aida(mouseY,rect.y,rect.y+rect.h)){
@@ -15,6 +33,23 @@ abstract class ui_component  extends ui_object{
     }
     return false;
   }
+  void setActive(boolean b){
+    active = b;
+    for(ui_component child :children){
+      child.setActive(b);
+    }
+  }
+  void addButtonFunc(ui_action action)  {
+    functions.add(new ui_button(this,action));
+  }
+  ui_button getButtonFunc(){
+     for(ui_function f : functions){
+       if(f instanceof ui_button){
+         return (ui_button)f;
+       }
+     }
+     return null;
+   }
   void draw(){
     if(!active) return;
     for(ui_component ui : children){
@@ -41,6 +76,7 @@ class ui_image extends ui_component {
   {
     if(!active) return;
     image(img, rect.x,rect.y,rect.w,rect.h);
+    super.draw();
   }
 }
 
@@ -72,6 +108,7 @@ class ui_text extends ui_component {
     fill(conf.c);
     textAlign(conf.align,conf.valign);
     text(text,rect.x,rect.y,rect.w,rect.h);
+    super.draw();
   }
 }
 
@@ -80,11 +117,11 @@ class ui_rect {
   int h;
   int x;
   int y;
-  ui_rect(int _x,int _y,int _w,int _h){
-    w = _w;
-    h = _h;
-    x = _x;
-    y = _y;
+  ui_rect(float _x,float _y,float _w,float _h){
+    w = int(_w);
+    h = int(_h);
+    x = int(_x);
+    y = int(_y);
   }
 }
 
@@ -113,19 +150,22 @@ class ui_box extends ui_component{
     }
     fill(c);
     rect(rect.x,rect.y,rect.w,rect.h);
+    super.draw();
   }
 }
 interface ui_action {
   void action();
 }
-class button extends ui_object {
+class ui_button extends ui_function {
   ui_component target;
   ui_action action;
-  button(ui_component _target,ui_action _action){
+  ui_button(ui_component _target,ui_action _action){
     target = _target;
     action = _action;
+    ui.buttons.add(this);
   }
   void pushed(){
+    if(!active) return ;
     action.action();
   }
   boolean inspectPushed(){

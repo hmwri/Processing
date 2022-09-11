@@ -2,10 +2,12 @@ ui_master ui;
 void setup(){
   init();
   surface.setResizable( true );
-  testLexer();
+  //testLexer();
   size(1000,800);
   ui = new ui_master();
-  
+  ui.init();
+  PFont font = loadFont("SourceHanCodeJP-Normal.vlw");
+  textFont(font);
 }
 
 void init(){
@@ -15,7 +17,7 @@ void init(){
 
 
 void draw(){
-  background(0);
+  background(#242F4B);
   ui.draw();
   
 }
@@ -33,5 +35,46 @@ void testLexer(){
   c.exe();
   }catch(Exception e) {
     println(e);
+  }
+}
+void exe(){
+  context c = new context(ui.editor.getText());
+  try{
+  c.exe();
+  }catch(Exception e) {
+    println(e);
+  }
+  result result = readResult();
+  ui.right.result.set(result);
+}
+
+result readResult (){
+    JSONObject jarray = loadJSONObject("result.json");
+  int shots = jarray.getInt("shots");
+  result result = new result(shots);
+  JSONArray results = jarray.getJSONArray("result");
+  for(int i=0;i<results.size();i++){
+    String name = results.getJSONArray(i).getString(0);
+    int value = results.getJSONArray(i).getInt(1);
+    result.result.add(new result_bit(name,value));
+  }
+  return result;
+  
+}
+
+class result {
+  int shots;
+  ArrayList<result_bit> result = new ArrayList<result_bit>();
+  result (int s){
+    shots = s;
+  }
+}
+
+class result_bit {
+  String name;
+  int value;
+  result_bit(String _name,int _value){
+    name = _name;
+    value = _value;
   }
 }

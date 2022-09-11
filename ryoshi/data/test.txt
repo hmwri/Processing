@@ -1,4 +1,9 @@
-@shots 1
+@shots 1000
 @device simulator
-int4 random = all
-?random
+int2 a = all
+int2 b = all
+int2 c = all
+int2 d = all
+mark a==b,a==c,d!=c
+up a,b,c,d
+?a,b,c,d
