@@ -2,103 +2,65 @@
 //simulate markov
 //2022/06/06
 //1-4-45 Taiyu Honma
-
+int Akati = 0;
+int Bkati = 0;
+int draw = 0;
 void setup()
 {
-  int Akati = 0;
-  int Bkati = 0;
-  int draw = 0;
-  int preA = -1;
-  int preB = -1;
-  int preBResult = -1;
   // 0 勝ち, 1 引き分け 2負け
-  for(int i=0;i < 1000000;i++)
+  // 0 グー 1　ちょき 2パー
+  int A = (int)random(3);
+  int B = (int)random(3);
+  shohaiCount(syohai(A,B));
+  for(int i=1;i < 1000000;i++)
   {
-    int A = -1;
-    int B = -1;
-    if(i==0){
-      A = (int)random(3);
-      B = (int)random(3);
-      preA = A;
-      preB = B;
-      preBResult = syohai(B,A);
-      switch (syohai(A,B)) {
-        case 0:
-          Akati++;
-          break;
-        case 1:
-          draw++;
-          break;
-          
-        case 2:
-          Bkati++;
-          break;
-      };
-      
-    }
-
-    switch(preA){
+    int nextA = -1;
+    switch(A){
       case 0:
-        A = randomFunc(1,1,8);
+        nextA = randomFunc(1,1,8);
         break;
       case 1:
-        A = randomFunc(1,1,8);
+        nextA = randomFunc(1,1,8);
         break;
       case 2:
-        A = randomFunc(2,3,5);
+        nextA = randomFunc(2,3,5);
         break;
     }
-    preA = A;
-    switch(preBResult){
+    int nextB  = -1;
+    switch(syohai(B,A)){
       case 0:
-        switch(randomFunc(8,2,0)){
+        switch(randomFunc(8,1,1)){
           case 0:
-            B = preB;
+            nextB = B;
             break;
           case 1:
-            B = tigaute(preB);
+            nextB = (B+1)%3;
+            break;
+          case 2:
+            nextB = (B+2)%3;
             break;
         }
         case 1:
           switch(randomFunc(5,5,0)){
             case 0:
-              B = preB;
+              nextB = B;
               break;
             case 1:
-              B = katsute(preB);
+              nextB = katsute(A);
               break;
           }
           break;
         case 2:
-          B = katsute(preB);
+          nextB = katsute(A);
           break;
-      }
-      preBResult = syohai(B,A);
-      switch (syohai(A,B)) {
-        case 0:
-          Akati++;
-          break;
-        case 1:
-        draw++;
-        break;
-        case 2:
-        Bkati++;
-        break;
-        
-      };
-          if(preA == -1|| A== -1|| B== -1){
-      println("ERROR!");
-      return;
     }
-     
+    A = nextA;
+    B = nextB;
+    shohaiCount(syohai(A,B));
     }
     println("Aの勝利数"+Akati);
     println("Bの勝利数"+Bkati);
     println("引き分け数",draw);
-    }
-
-void draw()
-{
 }
 
 int syohai(int a,int b){
@@ -111,6 +73,19 @@ int syohai(int a,int b){
   }
   return 0;
 }
+void shohaiCount(int r){
+  switch(r){
+     case 0:
+       Akati++;
+       break;
+     case 1:
+       draw++;
+       break;
+     case 2:
+       Bkati++;
+       break;
+  }
+}
 int katsute(int aite){
   if(aite == 0){
     return 2;
@@ -119,36 +94,11 @@ int katsute(int aite){
   {
     return 0;
   }
-  if(aite == 2){
-    return 1;
-    
-  }
-  return -1;
+  return 1;
 }
 int tigaute(int preB){
   int r = randomFunc(5,5,0);
-     if(preB == 0){
-         if(r == 0){
-                return 2;
-          }else{
-                return 1;
-          }
-      }
-            if(preB == 1){
-              if(r == 0){
-                return 0;
-              }else{
-                return 2;
-              }
-            }
-            if(preB == 2){
-              if(r == 0){
-                return 1;
-              }else{
-                return  0;
-              }
-            }
-            return -1;
+  return (preB+r)%3;
 }
 int randomFunc(int a,int b,int c){
   int r = (int)random(10);
@@ -161,5 +111,6 @@ int randomFunc(int a,int b,int c){
   if(r < a+b+c){
     return 2;
   }
+  println("ERROR");
   return -1;
 }

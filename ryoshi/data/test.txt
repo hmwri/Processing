@@ -1,0 +1,4 @@
+@shots 1
+@device simulator
+int4 random = all
+?random

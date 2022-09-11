@@ -1,5 +1,5 @@
 //advanced_FillSquare
-//draw cafe wall
+//draw filling sauare
 //2022/06/06
 //1-4-45 Taiyu Honma
 
