@@ -132,6 +132,9 @@ class Circuit {
   void getResult(exeConfig config) {
     Add(new getResult(this, config));
   }
+  void Grover(ArrayList<Function> _funcs,MarkFunc _mark,Diffuser diffuse){
+    Add(new grover(this,_funcs,_mark,diffuse));
+  }
 }
 class MakeRegister extends Function {
   int bit;
@@ -398,15 +401,29 @@ class getResult extends Function {
     return new Register[0];
   }
 }
-class oracle extends Function {
+class grover extends Function {
   ArrayList<Function> functions = new ArrayList<Function>();
   MarkFunc mark = null;
-  ArrayList<Function> inv_functions = new ArrayList<Function>();
+  Diffuser diffuser = null;
+  grover(Circuit _circuit,ArrayList<Function> _funcs,MarkFunc _mark,Diffuser d){
+    super(_circuit);
+    functions = _funcs;
+    mark = _mark;
+    diffuser = d;
+  }
    Register[] entangleRegisters() {
     return new Register[0];
   }
   String Str() {
-    var s = "%s.get_result()";
-    return String.format(s, circuit.name);
+    String result = "";
+    for(Function f : functions){
+      result += f.Str() + "\n";
+    }
+    result += mark.Str() + "\n";
+    for (int i=functions.size() - 1; i >= 0; i--) {
+      result += functions.get(i).getInv().Str() + "\n";
+    }
+    result += diffuser.Str() + "\n";
+    return result;
   }
 }

@@ -230,7 +230,6 @@ class compiler {
            functions.add(f);
            invFunctions.add(f.getInv());
         }
-       
       };
     }
     for (int i=invFunctions.size() - 1; i >= 0; i--) {
