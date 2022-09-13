@@ -12,9 +12,10 @@ class ui_right extends ui_component {
     super(new ui_rect(width/2, h, width/2, height-h));
     resultBox = new ui_box(new ui_rect(0, 0, w/2, buttonh), color(200));
     consoleBox = new ui_box(new ui_rect(w/2, 0, w/2, buttonh), color(200));
-    ui_text_config buttonConfig = new ui_text_config(20, color(255), CENTER);
-    resultText = new ui_text("result", new ui_rect(0, 0, w/2, buttonh), buttonConfig);
-    consoleText = new ui_text("console", new ui_rect(0, 0, w/2, buttonh), buttonConfig);
+    ui_text_config buttonConfig1 = new ui_text_config(20, color(255), CENTER);
+    ui_text_config buttonConfig2 = new ui_text_config(20, color(255), CENTER);
+    resultText = new ui_text("result", new ui_rect(0, 0, w/2, buttonh), buttonConfig1);
+    consoleText = new ui_text("console", new ui_rect(0, 0, w/2, buttonh), buttonConfig2);
     resultBox.addChild(resultText);
     consoleBox.addChild(consoleText);
     ui_action displayResult = new changeDisplay(false);
@@ -29,16 +30,22 @@ class ui_right extends ui_component {
     this.addChild(consoleui);
   }
   void draw() {
-    color on = color(255);
-    color off = color(0);
+    color on = color(#AAD8FF);
+    color off = color(#788CC6);
+    color ton = color(#2D405A);
+    color toff = color(200);
+    result.setActive(!console);
+    consoleui.setActive(console);
     if (console) {
-      result.setActive(false);
       consoleBox.c = on;
       resultBox.c = off;
+      consoleText.conf.c = ton;
+      resultText.conf.c = toff;
     } else {
-      result.setActive(true);
       consoleBox.c = off;
       resultBox.c = on;
+            consoleText.conf.c = toff;
+      resultText.conf.c = ton;
     }
 
     super.draw();

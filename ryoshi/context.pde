@@ -9,32 +9,46 @@ class context {
   lexer l ;
   errorManager eM;
   context(String code) {
+    code+=";";
+    println(code);
+    ui.resetConsole();
     eM = new errorManager();
     l = new lexer(code, eM);
   }
   void exe() throws Exception {
+    ui.addConsole("compiler","字句解析開始");
     ArrayList<token> result =  l.lex();
+    ui.addConsole("compiler","字句解析完了");
+     ui.addConsole("compiler","構文解析開始");
     Parser parser = new Parser(result, eM);
     Program program = parser.parse();
+    ui.addConsole("compiler","構文解析完了");
     print(program.Str());
+    ui.addConsole("compiler","コード生成開始");
     compiler c = new compiler(program, eM);
     String[] str = c.compile();
+    ui.addConsole("compiler","コード生成完了");    
     println("result:");
     for (String s : str) {
       println(s);
     }
+    ui.addConsole("editor","生成したコードをPythonで実行します");
     saveStrings("data/compiled.py", str);
-    ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/python3","compiled.py");
-    pb.directory(new File( dataPath("")));
+    ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/python3","-u","compiled.py");
+    pb.directory(new File(dataPath("")));
     pb.redirectErrorStream(true);
     Process  p  = pb.start();
+    pythonFinished = false;
     BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
     String stdout = "";
     while (stdout != null) {
-      stdout = br.readLine();
-      println(stdout);
+      stdout=br.readLine();
+      ui.addConsole("python",stdout);
     }
-
+    pythonFinished = true;
+    String[] empty = {""};
+    saveStrings("data/log.txt", empty);
+    ui.addConsole("editor","pythonから結果を受け取り表示します");
     eM.print();
   }
 }

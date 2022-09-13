@@ -31,6 +31,14 @@ class ui_master {
     editor.reSize(0,headerh,width/2, height-headerh);
   }
   
+  void addConsole(String from,String body){
+    right.consoleui.add(from,body);
+  }
+  
+  void resetConsole(){
+    right.consoleui.set("");
+  }
+  
   void inspect(){
     for(ui_button ui:ui.buttons){
       if(ui.inspectPushed()){

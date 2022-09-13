@@ -71,7 +71,7 @@ class lexer {
   }
 
   boolean isWord(char c) {
-    char[] excludes = { '?',',','=','!',':',')','(','#','@' };
+    char[] excludes = { '?',',','=','!',':',')','(','#','@',';' };
     for (char e : excludes) {
       if (e == c) {
         return false;
@@ -119,7 +119,6 @@ class lexer {
       return;
     }
     char r = read();
-    print(r);
     if (isNum(r)) {
       result.add(new token(tokenes.number, readNum()));
       l();
@@ -181,6 +180,14 @@ class lexer {
       break;
     case '@':
       result.add(new token(tokenes.atmark));
+      l();
+      break;
+    case '(':
+      result.add(new token(tokenes.lparam));
+      l();
+      break;
+    case ')':
+      result.add(new token(tokenes.rparam));
       l();
       break;
     case '\n':

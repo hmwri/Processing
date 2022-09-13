@@ -21,7 +21,9 @@ enum tokenes {
   Or,
   up,
   keyword,
-  atmark
+  atmark,
+  rparam,
+  lparam
 }
 
 

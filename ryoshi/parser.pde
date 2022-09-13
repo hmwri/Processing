@@ -79,7 +79,10 @@ class Parser {
   Program parse() throws ryoshiException {
     Program program = new Program();
     while (next() != null) {
-      program.Add(parseStatement());
+      Statement stmt = parseStatement();
+      if(stmt != null) {
+        program.Add(stmt);
+      }
     }
     return program;
   }
@@ -98,6 +101,8 @@ class Parser {
       return parseUp();
     case mark:
       return parseMark();
+    case semiColon:
+      return null;
     default:
       eM.Panic(201, "こんなとこに"+tok.name()+"は不適切です");
       return null;
@@ -109,10 +114,8 @@ class Parser {
     if (left == null) {
       eM.Add(102, String.format("%s を解析できませんでした。", now().str()));
     }
-    print(now().str());
     if (next() == null) return null;
     while (!(next().token==tokenes.semiColon) && prio.getInt() < nextPriority().getInt()) {
-      print(now().str());
       left = parseInfix(next(), left);
     }
     return left;
@@ -136,6 +139,8 @@ class Parser {
     case not:
     case minus:
       return parsePrefixExpression();
+    case lparam:
+      return parseGroup();
     default:
       return null;
     }
@@ -160,7 +165,7 @@ class Parser {
     read();
     Expression right = parseExpression(prio);
     if (right == null) {
-      eM.Panic(101, "右辺がありません");
+      eM.Panic(101, "右辺がありません"+operator.name());
     }
     return new Infix(left, operator, right);
   }
@@ -169,6 +174,17 @@ class Parser {
     read();
     Expression expr = parseExpression(Priority.PREFIX);
     return new Prefix(operator, expr);
+  }
+  Expression parseGroup() throws ryoshiException{
+    println("parse group");
+    read();
+    Expression expr = parseExpression(Priority.LOWEST);
+    if(next().token != tokenes.rparam){
+      print("here");
+      return null;
+    }
+    read();
+    return expr;
   }
   Identifer parseIdent() {
     return new Identifer(now().body);
@@ -229,8 +245,8 @@ class Parser {
     while (true) {
       read();
       Expression ex = parseExpression(Priority.LOWEST);
-      if (ex == null ) eM.Panic(305, "up　の対象を用意してくだい");
-      if (!(ex instanceof Identifer)) eM.Panic(304, "upの対象は変数のみ有効です");
+      if (ex == null ) eM.Panic(305, "measure　の対象を用意してくだい");
+      if (!(ex instanceof Identifer)) eM.Panic(304, "measureの対象は変数のみ有効です");
       Identifer target = (Identifer)ex;
       targets.add(target);
       if (next().token == tokenes.comma) {

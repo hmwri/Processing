@@ -4,7 +4,7 @@ class compiler {
   ArrayList<Circuit> circuits = new ArrayList<Circuit>();
   int circuitIndex = 0;
   String result;
-  exeConfig exeConfig = new exeConfig(1, false);
+  exeConfig exeConfig = new exeConfig(1, true);
 
   compiler(Program _program, errorManager _eM) {
     program=_program;
@@ -23,6 +23,7 @@ class compiler {
     return result.array();
   }
   Circuit compileCircuit(Circuit c) throws ryoshiException {
+    boolean isMeasured = false;
     for (Statement s : program.Statements) {
       if (s instanceof Declaration) {
         compileDeclaration((Declaration)s, c);
@@ -34,11 +35,16 @@ class compiler {
         compileUp((Up)s, c);
       }
       if (s instanceof Measure) {
+        isMeasured = true;
         compileMeasure((Measure)s, c);
       }
       if (s instanceof Config) {
         compileConfig((Config)s);
       }
+  
+    }
+    if(!isMeasured){
+      eM.Panic(305,"観測は必ず一回行ってください");
     }
     c.Exe(exeConfig);
     c.getResult(exeConfig);
@@ -198,6 +204,15 @@ class compiler {
         eM.Panic(402, String.format("不明な設定値%s", conf.value));
       }
       break;
+    case "grover":
+      try {
+        int value = Integer.parseInt(conf.value);
+        exeConfig.grover = value;
+      }
+      catch(NumberFormatException ex) {
+        eM.Panic(402, String.format("不明な設定値%s", conf.value));
+      }
+      break;
     default:
       eM.Panic(401, String.format("不明なパラメーター", conf.parameter));
     }
@@ -224,18 +239,26 @@ class compiler {
     ArrayList<Register> dependancies = new ArrayList<Register>(registers);
     ArrayList<Function> functions = new ArrayList<Function>();
     ArrayList<Function> invFunctions = new ArrayList<Function>();
+    MarkFunc mark  = null;
     for (Function f : c.functions) {
+      if (f instanceof MarkFunc) {
+        mark = (MarkFunc)f;
+      }
       if (isDepending(dependancies, f.entangleRegisters())) {
-        if(!f.inv){
-           functions.add(f);
-           invFunctions.add(f.getInv());
+        if (!f.inv) {
+          functions.add(f);
+          invFunctions.add(f.getInv());
         }
       };
     }
-    for (int i=invFunctions.size() - 1; i >= 0; i--) {
-      c.functions.add(invFunctions.get(i));
+    if (mark == null) {
+      eM.Panic(305, "upを行う前にmarkをしてください");
     }
-    c.Diffuser((Register[])registers.toArray(new Register[0]));
+    for (Function f : functions) {
+      c.functions.remove(f);
+    };
+    c.functions.remove(mark);
+    c.Grover(exeConfig.grover,functions, mark, new Diffuser(c, (Register[])registers.toArray(new Register[0])));
   }
   boolean isDepending(ArrayList<Register> dependancies, Register[] entangles) {
     for (Register r : dependancies) {

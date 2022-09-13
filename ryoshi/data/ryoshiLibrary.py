@@ -7,6 +7,7 @@ from qiskit.visualization import plot_histogram
 from qiskit.circuit.library import C3XGate, C4XGate
 from qiskit.providers.ibmq import least_busy
 from qiskit.tools.monitor import job_monitor
+import sys
 import enum
 
 
@@ -119,7 +120,7 @@ class ryoshiRegister:
 
     def writeValue(self, num: int):
         formatString = '0' + str(self.size) + 'b'
-        for i, b in enumerate(list(format(num, formatString))):
+        for i, b in enumerate(reversed(list(format(num, formatString)))):
             if b == '1':
                 self.targetCircuit.x(self.register[i])
 
@@ -156,6 +157,7 @@ class ryoshiCircuit:
     result: qiskit.result.Result
     measured : list[str]
     def __init__(self, name):
+       
         print("start")
         self.name = name
         self.targetCircuit = QuantumCircuit(name=name)
@@ -322,24 +324,33 @@ class ryoshiCircuit:
             self.registers[r].measure()
 
     def exe_sim(self,shots):
+        print("シミュレータで実行します")
         simulator = Aer.get_backend('qasm_simulator')
         circuit = transpile(self.targetCircuit, backend=simulator)
+        print("トランスパイル完了")
         sim_job = simulator.run(circuit, shots=shots)
+        print("実行完了")
         sim_result = sim_job.result()
         self.result = sim_result
 
     def exe_actual(self,shots):
+        print("実機で実行します")
         IBMQ.load_account()
+        print("トークン認証完了しました")
         provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
         backend_list = provider.backends()
-        backend = least_busy(backend_list)
+        backend :qiskit.providers.Backend = least_busy(backend_list)
+        print("バックエンド準備完了 backend"+str(backend.version))
         circuit = transpile(self.targetCircuit, backend=backend)
+        print("トランスパイル完了")
+        print("実行開始")
         job = backend.run(circuit, shots=shots)
         job_monitor(job, interval=2)
+        print("実行完了")
         result = job.result()
         self.result = result
 
-    def get_result(self,*names):
+    def get_result(self,*names,debug = False):
         shots = self.result.to_dict()['results'][0]['shots']
         cregs = self.result.to_dict()['results'][0]['header']['creg_sizes']
         if len(names) == 0 :
@@ -381,16 +392,22 @@ class ryoshiCircuit:
         #     for key2, n in r.items():
         #         results[key1][key2] = n / shots
         # print(results)
+
+
         sortedResult = sorted(results2.items(), key=lambda x: x[1], reverse=True)
         result = {'shots':shots,'result':sortedResult}
         string = json.dumps(result)
         f = open('result.json', 'w')
         f.write(string)
         f.close()
-        # plot_histogram(counts)
-        # plt.tight_layout()
+        if debug:
+            plot_histogram(counts)
+            plt.tight_layout()
+            plt.show()
+        print("回路図生成中")
         self.targetCircuit.draw('mpl',filename="circuit.png")
-        # plt.show()
+        print("完了")
+
     # positon番目のビットがすべて同じか
 
 

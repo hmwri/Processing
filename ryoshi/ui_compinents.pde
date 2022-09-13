@@ -20,6 +20,12 @@ abstract class ui_component  extends ui_object{
     uc.rect.y+=rect.y;
     uc.resetChildRect(rect);
   }
+  void background(color c){
+    if(!active) return;
+    noStroke();
+    fill(c);
+    rect(rect.x,rect.y,rect.w,rect.h);
+  }
   void resetChildRect(ui_rect rect) {
     for(ui_component c: children){
       c.rect.x += rect.x;
@@ -89,6 +95,12 @@ class ui_text_config{
     fontsize = _fontsize;
     c = _c;
     align = _align;
+  }
+    ui_text_config(int _fontsize,color _c,int _align,int _alignv){
+    fontsize = _fontsize;
+    c = _c;
+    align = _align;
+    valign = _alignv;
   }
 }
 

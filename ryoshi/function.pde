@@ -132,8 +132,17 @@ class Circuit {
   void getResult(exeConfig config) {
     Add(new getResult(this, config));
   }
-  void Grover(ArrayList<Function> _funcs,MarkFunc _mark,Diffuser diffuse){
-    Add(new grover(this,_funcs,_mark,diffuse));
+  void Grover(float m,ArrayList<Function> _funcs,MarkFunc _mark,Diffuser diffuse){
+    int n = 0;
+    for(Register regi : diffuse.targets){
+      n += regi.bit;
+    }
+    float num = sqrt(pow(2,n)/m);
+    int N = round(num);
+    println(num);
+    for(int i=0;i<m;i++){
+      Add(new Grover(this,_funcs,_mark,diffuse));
+    }
   }
 }
 class MakeRegister extends Function {
@@ -401,11 +410,11 @@ class getResult extends Function {
     return new Register[0];
   }
 }
-class grover extends Function {
+class Grover extends Function {
   ArrayList<Function> functions = new ArrayList<Function>();
   MarkFunc mark = null;
   Diffuser diffuser = null;
-  grover(Circuit _circuit,ArrayList<Function> _funcs,MarkFunc _mark,Diffuser d){
+  Grover(Circuit _circuit,ArrayList<Function> _funcs,MarkFunc _mark,Diffuser d){
     super(_circuit);
     functions = _funcs;
     mark = _mark;
