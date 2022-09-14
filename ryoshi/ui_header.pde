@@ -12,6 +12,10 @@ class ui_header extends ui_component{
     this.addChild(exeButton);
     this.addChild(circuitButton);
   }
+  void draw(){
+   this.background(#242F4B);
+   super.draw();
+  }
 }
 
 class exe_action implements ui_action {

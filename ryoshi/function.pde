@@ -132,6 +132,12 @@ class Circuit {
   void getResult(exeConfig config) {
     Add(new getResult(this, config));
   }
+  void PlusEqual(Register target1, Register target2){
+     Add(new PlusEqual(this, target1, target2));
+  }
+    void MinusEqual(Register target1, Register target2){
+     Add(new MinusEqual(this, target1, target2));
+  }
   void Grover(float m,ArrayList<Function> _funcs,MarkFunc _mark,Diffuser diffuse){
     int n = 0;
     for(Register regi : diffuse.targets){
@@ -408,6 +414,42 @@ class getResult extends Function {
   }
   Register[] entangleRegisters() {
     return new Register[0];
+  }
+}
+class PlusEqual extends Function {
+  Register left;
+  Register right;
+
+  PlusEqual(Circuit _circuit, Register _left, Register _right) {
+    super(_circuit);
+    left = _left;
+    right = _right;
+  }
+  String Str() {
+    var s = inv ? "%s.minusEqual('%s','%s')" : "%s.plusEqual('%s','%s')";
+    return String.format(s, circuit.name, left.name, right.name);
+  }
+  Register[] entangleRegisters() {
+    Register[] regi = {left, right};
+    return  regi;
+  }
+}
+class MinusEqual extends Function {
+  Register left;
+  Register right;
+
+  MinusEqual(Circuit _circuit, Register _left, Register _right) {
+    super(_circuit);
+    left = _left;
+    right = _right;
+  }
+  String Str() {
+    var s = inv ? "%s.plusEqual('%s','%s')" : "%s.minusEqual('%s','%s')";
+    return String.format(s, circuit.name, left.name, right.name);
+  }
+  Register[] entangleRegisters() {
+    Register[] regi = {left, right};
+    return  regi;
   }
 }
 class Grover extends Function {

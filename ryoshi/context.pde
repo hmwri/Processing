@@ -16,6 +16,7 @@ class context {
     l = new lexer(code, eM);
   }
   void exe() throws Exception {
+    ui.right.console = true;
     ui.addConsole("compiler","字句解析開始");
     ArrayList<token> result =  l.lex();
     ui.addConsole("compiler","字句解析完了");
@@ -27,10 +28,13 @@ class context {
     ui.addConsole("compiler","コード生成開始");
     compiler c = new compiler(program, eM);
     String[] str = c.compile();
-    ui.addConsole("compiler","コード生成完了");    
+    ui.addConsole("compiler","VV コード生成完了 VV");
+    
     println("result:");
+    int i = 0;
     for (String s : str) {
-      println(s);
+      i++;
+      ui.addConsole(i+"",s);
     }
     ui.addConsole("editor","生成したコードをPythonで実行します");
     saveStrings("data/compiled.py", str);
@@ -43,12 +47,17 @@ class context {
     String stdout = "";
     while (stdout != null) {
       stdout=br.readLine();
-      ui.addConsole("python",stdout);
+      if(stdout!=null && !stdout.isEmpty()){
+        ui.addConsole("python",stdout);
+      }
+      
     }
     pythonFinished = true;
     String[] empty = {""};
     saveStrings("data/log.txt", empty);
     ui.addConsole("editor","pythonから結果を受け取り表示します");
+    ui.right.result.si = 0;
+    ui.right.console = false;
     eM.print();
   }
 }

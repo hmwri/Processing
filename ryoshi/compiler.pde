@@ -41,10 +41,12 @@ class compiler {
       if (s instanceof Config) {
         compileConfig((Config)s);
       }
-  
+      if (s instanceof ExpressionStatement) {
+        compileExpressionStatement((ExpressionStatement)s, c);
+      }
     }
-    if(!isMeasured){
-      eM.Panic(305,"観測は必ず一回行ってください");
+    if (!isMeasured) {
+      eM.Panic(305, "観測は必ず一回行ってください");
     }
     c.Exe(exeConfig);
     c.getResult(exeConfig);
@@ -106,7 +108,6 @@ class compiler {
       return;
     }
     compileExpression(regi, d.value, c);
-
     //eM.Panic(902, String.format("現在初期値に%sはサポートしていません", d.value.Str()));
   }
   Register compileExpression(Register result, Expression e, Circuit c) throws ryoshiException {
@@ -173,6 +174,36 @@ class compiler {
     default:
     }
     return null;
+  }
+  void compileExpressionStatement(ExpressionStatement ex, Circuit c) throws ryoshiException {
+    if (ex.body instanceof Infix) {
+      compileInfixStatement((Infix)ex.body,c);
+    }else{
+      eM.Panic(601,"現在Prefix式文に対応していません");
+    }
+  }
+  void compileInfixStatement(Infix i,Circuit c) throws ryoshiException {
+    Register leftRegi = compileExpression(null, i.left, c);
+    Register rightRegi = compileExpression(null, i.right, c);
+    if (leftRegi == null || rightRegi == null) {
+      eM.Panic(308, String.format("右辺または左辺を解析できませんでした at %s", i.operator.name()));
+      return;
+    }
+    if (leftRegi.type.type == tokenes.bool || rightRegi.type.type == tokenes.bool) {
+      eM.Panic(308, String.format("右辺または左辺がbooleanです at %s", i.operator.name()));
+      return ;
+    }
+    switch(i.operator) {
+    case plusEqual:
+      c.PlusEqual(leftRegi, rightRegi);
+      break;
+    case minusEqual:
+      c.MinusEqual(leftRegi, rightRegi);
+      break;
+    default:
+      eM.Panic(306, String.format("%sはステートメントではありません", i.operator.name()));
+    }
+    return;
   }
   Register compilePrefix(Prefix p, Circuit c) throws ryoshiException {
     Register rightRegi = compileExpression(null, p.right, c);
@@ -258,7 +289,7 @@ class compiler {
       c.functions.remove(f);
     };
     c.functions.remove(mark);
-    c.Grover(exeConfig.grover,functions, mark, new Diffuser(c, (Register[])registers.toArray(new Register[0])));
+    c.Grover(exeConfig.grover, functions, mark, new Diffuser(c, (Register[])registers.toArray(new Register[0])));
   }
   boolean isDepending(ArrayList<Register> dependancies, Register[] entangles) {
     for (Register r : dependancies) {

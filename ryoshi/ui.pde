@@ -13,14 +13,14 @@ class ui_master {
 
   }
   void init(){
-        editor = new ui_editor(this, new ui_rect(0, headerh, width/2, height-headerh));
+    editor = new ui_editor(this, new ui_rect(0, headerh, width/2, height-headerh));
     String[] code = loadStrings("test.txt");
     editor.setText(code);
     uis.add(editor);
-    header = new ui_header(headerh);
-    uis.add(header);
     right = new ui_right(headerh);
     uis.add(right);
+    header = new ui_header(headerh);
+    uis.add(header);
   }
 
   void draw() {

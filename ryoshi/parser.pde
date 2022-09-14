@@ -1,5 +1,6 @@
 enum Priority {
-  LOWEST(1),
+  NOTFOUND(0),
+    LOWEST(1),
     LOGIC(2),
     EQUALS(3),
     LESSGREATER(4),
@@ -23,9 +24,13 @@ void setupPriorities() {
   priorities.put(tokenes.equalOp, Priority.EQUALS);
   priorities.put(tokenes.notequal, Priority.EQUALS);
   priorities.put(tokenes.plus, Priority.SUM);
+  priorities.put(tokenes.plusEqual, Priority.SUM);
+  priorities.put(tokenes.minusEqual, Priority.SUM);
   priorities.put(tokenes.minus, Priority.SUM);
   priorities.put(tokenes.And, Priority.LOGIC);
   priorities.put(tokenes.Or, Priority.LOGIC);
+  priorities.put(tokenes.number, Priority.LOWEST);
+  priorities.put(tokenes.bool, Priority.LOWEST);
 }
 
 class Parser {
@@ -41,13 +46,21 @@ class Parser {
     if (now >= _tokenes.size()) return null;
     return _tokenes.get(now);
   }
-  Priority nowPriority() {
+  Priority nowPriority() throws ryoshiException {
     if (now >= _tokenes.size()) return null;
-    return priorities.getOrDefault(now().token, Priority.LOWEST);
+    if (!priorities.containsKey(now().token)) {
+      eM.Panic(306, "予期しない演算子:"+now().str());
+      return null;
+    }
+    return priorities.get(now().token);
   }
-  Priority nextPriority() {
+  Priority nextPriority() throws ryoshiException {
     if (now+1 >= _tokenes.size()) return null;
-    return priorities.getOrDefault(next().token, Priority.LOWEST);
+    if (!priorities.containsKey(next().token)) {
+      eM.Panic(306, "予期しない演算子:"+next().str());
+      return null;
+    }
+    return priorities.get(next().token);
   }
   token next() {
     if (now+1 >= _tokenes.size()) return null;
@@ -61,10 +74,10 @@ class Parser {
     now++;
     return target;
   }
- token expect(tokenes token1, tokenes token2) throws ryoshiException {
+  token expect(tokenes token1, tokenes token2) throws ryoshiException {
     if (now+1 >= _tokenes.size()) return null;
     var target = _tokenes.get(now+1);
-    if (target.token != token1 && target.token != token2) eM.Panic(200, String.format("except %s or %s but got %s", token1.name(),token2.name(), target.token.name()));
+    if (target.token != token1 && target.token != token2) eM.Panic(200, String.format("except %s or %s but got %s", token1.name(), token2.name(), target.token.name()));
     now++;
     return target;
   }
@@ -80,7 +93,7 @@ class Parser {
     Program program = new Program();
     while (next() != null) {
       Statement stmt = parseStatement();
-      if(stmt != null) {
+      if (stmt != null) {
         program.Add(stmt);
       }
     }
@@ -104,11 +117,17 @@ class Parser {
     case semiColon:
       return null;
     default:
-      eM.Panic(201, "こんなとこに"+tok.name()+"は不適切です");
-      return null;
+      return parseExpressionStatement();
     }
   }
-
+  ExpressionStatement parseExpressionStatement() throws ryoshiException {
+    Expression expr = parseExpression(Priority.LOWEST);
+    println(expr);
+    if (next().token == tokenes.semiColon) {
+      read();
+    }
+    return new ExpressionStatement(expr);
+  }
   Expression parseExpression(Priority prio) throws ryoshiException {
     Expression left = parsePrefix();
     if (left == null) {
@@ -148,6 +167,8 @@ class Parser {
   Expression parseInfix(token token, Expression left) throws ryoshiException {
     switch(token.token) {
     case plus:
+    case plusEqual:
+    case minusEqual:
     case minus:
     case equalOp:
     case notequal:
@@ -156,6 +177,7 @@ class Parser {
       read();
       return parseInfixExpression(left);
     default:
+      eM.Panic(204, "無効な演算子:"+token.str());
       return null;
     }
   }
@@ -175,11 +197,11 @@ class Parser {
     Expression expr = parseExpression(Priority.PREFIX);
     return new Prefix(operator, expr);
   }
-  Expression parseGroup() throws ryoshiException{
+  Expression parseGroup() throws ryoshiException {
     println("parse group");
     read();
     Expression expr = parseExpression(Priority.LOWEST);
-    if(next().token != tokenes.rparam){
+    if (next().token != tokenes.rparam) {
       print("here");
       return null;
     }
@@ -234,7 +256,7 @@ class Parser {
   }
   Config parseConfig() throws ryoshiException {
     String parameter = expect(tokenes.keyword).body;
-    String value = expect(tokenes.keyword,tokenes.number).body;
+    String value = expect(tokenes.keyword, tokenes.number).body;
     if (next().token == tokenes.semiColon) {
       read();
     }

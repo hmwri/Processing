@@ -23,7 +23,9 @@ enum tokenes {
   keyword,
   atmark,
   rparam,
-  lparam
+  lparam,
+  plusEqual,
+  minusEqual
 }
 
 

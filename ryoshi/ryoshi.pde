@@ -71,7 +71,7 @@ class exe1 extends Thread {
   }
 }
 result globalResult = null;
-String consoleText = "";
+StringList consoleText = new StringList();
 boolean pythonFinished = true;
 class result {
   boolean isDisplayed = false;

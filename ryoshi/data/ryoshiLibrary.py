@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 import qiskit.result
 from scipy.optimize import minimize, Bounds
-from qiskit import QuantumCircuit, QuantumRegister, Aer, transpile, ClassicalRegister,IBMQ
+from qiskit import QuantumCircuit, QuantumRegister, Aer, transpile, ClassicalRegister, IBMQ
 from qiskit.visualization import plot_histogram
 from qiskit.circuit.library import C3XGate, C4XGate
 from qiskit.providers.ibmq import least_busy
@@ -155,9 +155,10 @@ class ryoshiCircuit:
     targetCircuit: QuantumCircuit
     registers: dict[ryoshiRegister]
     result: qiskit.result.Result
-    measured : list[str]
+    measured: list[str]
+
     def __init__(self, name):
-       
+
         print("start")
         self.name = name
         self.targetCircuit = QuantumCircuit(name=name)
@@ -191,12 +192,15 @@ class ryoshiCircuit:
         rr1 = self.registers[register1]
         rr2 = self.registers[register2]
         rrr = self.registers[result]
-        if not (rr1.size == rr2.size):
-            print("Oh..! rr1 and rr2 are not same.")
-            return
+        if rr1.size > rr2.size :
+            tmp = rr2
+            rr2 = rr1
+            rr1 = tmp
+
         rrc = self.registers[help]
-        for i in range(rr1.size):
-            self.targetCircuit.cx(rr1.register[i], rrc.register[i])
+        for i in range(rr2.size):
+            if i < rr1.size:
+                self.targetCircuit.cx(rr1.register[i], rrc.register[i])
             self.targetCircuit.cx(rr2.register[i], rrc.register[i])
         for i in range(rrc.size):
             self.targetCircuit.x(rrc.register[i])
@@ -210,18 +214,20 @@ class ryoshiCircuit:
         rr2 = self.registers[register2]
         rrr = self.registers[result]
         rrc = self.registers[help]
-        if not (rr1.size == rr2.size):
-            print("Oh..! rr1 and rr2 are not same.")
-            return
+        if rr1.size > rr2.size :
+            tmp = rr2
+            rr2 = rr1
+            rr1 = tmp
         controlls = [c for c in rrc.register]
         self.targetCircuit.mcx(controlls, rrr.register[0])
 
         for i in range(rrc.size):
             self.targetCircuit.x(rrc.register[i])
 
-        for i in range(rr1.size):
+        for i in range(rr2.size):
             self.targetCircuit.cx(rr2.register[i], rrc.register[i])
-            self.targetCircuit.cx(rr1.register[i], rrc.register[i])
+            if i < rr1.size:
+                self.targetCircuit.cx(rr1.register[i], rrc.register[i])
 
     def inv_notequal(self, register1: str, register2: str, help: str, result: str):
         rrr = self.registers[result]
@@ -232,6 +238,32 @@ class ryoshiCircuit:
         rrr = self.registers[result]
         self.equal(register1, register2, help, result)
         self.targetCircuit.x(rrr.register[0])
+
+    def plusEqual(self,register1:str,register2:str):
+        self.targetCircuit.barrier()
+        rr1 = self.registers[register1]
+        rr2 = self.registers[register2]
+        for i in range(rr2.size) :
+            target = rr2.register[i]
+            for j in reversed(range(i,rr1.size)):
+                controlls = []
+                for k in range(i,j):
+                    controlls.append(rr1.register[k])
+                controlls.append(target)
+                self.targetCircuit.mcx(controlls,rr1.register[j])
+
+    def minusEqual(self,register1:str,register2:str):
+        self.targetCircuit.barrier()
+        rr1 = self.registers[register1]
+        rr2 = self.registers[register2]
+        for i in reversed(range(rr2.size)) :
+            target = rr2.register[i]
+            for j in range(i,rr1.size):
+                controlls = []
+                for k in range(i,j):
+                    controlls.append(rr1.register[k])
+                controlls.append(target)
+                self.targetCircuit.mcx(controlls,rr1.register[j])
 
     def And(self, register1: str, register2: str, result: str):
         rr1 = self.registers[register1]
@@ -278,10 +310,10 @@ class ryoshiCircuit:
         self.targetCircuit.ccx(rr1.register, rr2.register, rrr.register)
         self.targetCircuit.x(rr1.register)
         self.targetCircuit.x(rr2.register)
-    def Not(self,target:str):
+
+    def Not(self, target: str):
         rr1 = self.registers[target]
         self.targetCircuit.x(rr1.register)
-
 
     def write(self, name, value):
         self.registers[name].writeValue(value)
@@ -315,15 +347,16 @@ class ryoshiCircuit:
             self.targetCircuit.h(qRbits[0])
             self.targetCircuit.mct(qRbits[1:], qRbits[0])
             self.targetCircuit.h(qRbits[0])
-    def Entangle2(self,name:str,num1,num2):
-        self.registers[name].Entangle2(num1,num2)
+
+    def Entangle2(self, name: str, num1, num2):
+        self.registers[name].Entangle2(num1, num2)
 
     def measure(self, *registers):
         for r in registers:
             self.measured.append(r);
             self.registers[r].measure()
 
-    def exe_sim(self,shots):
+    def exe_sim(self, shots):
         print("シミュレータで実行します")
         simulator = Aer.get_backend('qasm_simulator')
         circuit = transpile(self.targetCircuit, backend=simulator)
@@ -333,14 +366,14 @@ class ryoshiCircuit:
         sim_result = sim_job.result()
         self.result = sim_result
 
-    def exe_actual(self,shots):
+    def exe_actual(self, shots):
         print("実機で実行します")
         IBMQ.load_account()
         print("トークン認証完了しました")
         provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
         backend_list = provider.backends()
-        backend :qiskit.providers.Backend = least_busy(backend_list)
-        print("バックエンド準備完了 backend"+str(backend.version))
+        backend: qiskit.providers.Backend = least_busy(backend_list)
+        print("バックエンド準備完了 backend" + str(backend.version))
         circuit = transpile(self.targetCircuit, backend=backend)
         print("トランスパイル完了")
         print("実行開始")
@@ -350,10 +383,10 @@ class ryoshiCircuit:
         result = job.result()
         self.result = result
 
-    def get_result(self,*names,debug = False):
+    def get_result(self, *names, debug=False):
         shots = self.result.to_dict()['results'][0]['shots']
         cregs = self.result.to_dict()['results'][0]['header']['creg_sizes']
-        if len(names) == 0 :
+        if len(names) == 0:
             names = self.measured
         cregnames = [c[0] for c in cregs]
         counts = self.result.get_counts()
@@ -375,7 +408,6 @@ class ryoshiCircuit:
             else:
                 results2[keyname] = c
 
-
         # for key, c in counts.items():
         #     bits = key.split()
         #     bits.reverse()
@@ -393,9 +425,8 @@ class ryoshiCircuit:
         #         results[key1][key2] = n / shots
         # print(results)
 
-
         sortedResult = sorted(results2.items(), key=lambda x: x[1], reverse=True)
-        result = {'shots':shots,'result':sortedResult}
+        result = {'shots': shots, 'result': sortedResult}
         string = json.dumps(result)
         f = open('result.json', 'w')
         f.write(string)
@@ -405,7 +436,7 @@ class ryoshiCircuit:
             plt.tight_layout()
             plt.show()
         print("回路図生成中")
-        self.targetCircuit.draw('mpl',filename="circuit.png")
+        self.targetCircuit.draw('mpl', filename="circuit.png",scale=0.4)
         print("完了")
 
     # positon番目のビットがすべて同じか

@@ -152,7 +152,7 @@ class Bool extends Value {
   }
 }
 
-class Identifer implements Expression {
+class Identifer implements Expression  {
   String name;
   String Str() {
     return String.format("[Identifier %s]", name);
@@ -174,7 +174,7 @@ class Config implements Statement {
 }
 
 
-class Prefix implements Expression {
+class Prefix implements Expression, Statement {
   tokenes operator;
   Expression right;
   Prefix(tokenes token,Expression expr) {
@@ -186,7 +186,7 @@ class Prefix implements Expression {
   }
 }
 
-class Infix implements Expression {
+class Infix implements Expression, Statement {
   Expression left;
   tokenes operator;
   Expression right;
@@ -197,5 +197,15 @@ class Infix implements Expression {
   }
   String Str() {
     return String.format("[Infix %s, %s, %s]", left.Str(),operator.name(), right.Str());
+  }
+}
+
+class ExpressionStatement implements Statement{
+  Expression body;
+  ExpressionStatement(Expression _body){
+    body= _body;
+  }
+    String Str() {
+    return String.format("[Expression Statement %s]", body.Str());
   }
 }

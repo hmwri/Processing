@@ -1,4 +1,5 @@
 @shots 1000
-@device simulator
-int4 a = all
-?a
+@grover 1
+int3 a = 2
+a+=2
+?

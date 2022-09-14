@@ -22,12 +22,13 @@ class ui_right extends ui_component {
     ui_action displayConsole = new changeDisplay(true);
     resultBox.addButtonFunc(displayResult);
     consoleBox.addButtonFunc(displayConsole);
-    this.addChild(resultBox);
-    this.addChild(consoleBox);
+
     result = new ui_result(buttonh);
     this.addChild(result);
     consoleui = new ui_console(buttonh);
     this.addChild(consoleui);
+    this.addChild(resultBox);
+    this.addChild(consoleBox);
   }
   void draw() {
     color on = color(#AAD8FF);
@@ -44,7 +45,7 @@ class ui_right extends ui_component {
     } else {
       consoleBox.c = off;
       resultBox.c = on;
-            consoleText.conf.c = toff;
+      consoleText.conf.c = toff;
       resultText.conf.c = ton;
     }
 

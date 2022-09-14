@@ -4,10 +4,10 @@ import java.util.List;
 
 char EOF = '\0';
 
-class Pair<A,B> {
+class Pair<A, B> {
   final A left;
   final B right;
-  Pair(A l,B r) {
+  Pair(A l, B r) {
     left = l;
     right = r;
   }
@@ -71,7 +71,7 @@ class lexer {
   }
 
   boolean isWord(char c) {
-    char[] excludes = { '?',',','=','!',':',')','(','#','@',';' };
+    char[] excludes = { '?', ',', '=', '!', ':', ')', '(', '#', '@', ';' ,'+','-'};
     for (char e : excludes) {
       if (e == c) {
         return false;
@@ -95,15 +95,15 @@ class lexer {
     }
     return result;
   }
-  Pair<Boolean,token> isType(String str){
-    
-    if(str.length() < 4){
-      return new Pair(false,null);
+  Pair<Boolean, token> isType(String str) {
+
+    if (str.length() < 4) {
+      return new Pair(false, null);
     }
-    if (str.substring(0,3).equals("int") && str.substring(3,str.length()).matches("[+-]?\\d*(\\.\\d+)?")){
-      return new Pair(true,new token(tokenes.i,str.substring(3,str.length())));
+    if (str.substring(0, 3).equals("int") && str.substring(3, str.length()).matches("[+-]?\\d*(\\.\\d+)?")) {
+      return new Pair(true, new token(tokenes.i, str.substring(3, str.length())));
     }
-    return new Pair(false,null);
+    return new Pair(false, null);
   }
   ArrayList<token> lex() {
     l();
@@ -167,11 +167,21 @@ class lexer {
       l();
       break;
     case '-':
-      result.add(new token(tokenes.minus));
+      if (next() == '=') {
+        result.add(new token(tokenes.minusEqual));
+        read();
+      } else {
+        result.add(new token(tokenes.minus));
+      }
       l();
       break;
     case '+':
-      result.add(new token(tokenes.plus));
+      if (next() == '=') {
+        result.add(new token(tokenes.plusEqual));
+        read();
+      } else {
+        result.add(new token(tokenes.plus));
+      }
       l();
       break;
     case ';':

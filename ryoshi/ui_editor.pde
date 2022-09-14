@@ -7,9 +7,15 @@ class ui_editor extends ui_component{
     parentui = ui;
     area.setLineWrap(true);
     area.setWrapStyleWord(true);
+    area.setMargin(new Insets(5, 5, 0, 0));
     JScrollPane scrollPane = new JScrollPane(area);
-    scrollPane.setBounds(rect.x, rect.y, rect.x+rect.w, rect.y+rect.h);
+    area.setForeground(new Color(255,255,255));
+    scrollPane.setBounds(rect.x+20, rect.y, rect.x+rect.w, rect.y+rect.h+1);
+    scrollPane.setBackground(new Color(#3A445F));
+    area.setBackground(new Color(#3A445F));
+    area.setCaretColor(new Color(255,255,255));
     parentui.pane.add(scrollPane);
+    area.setFont(new Font("Source Han Code Pro", Font.BOLD, 16));
     pane = scrollPane;
   }
   void setText(String str) {
@@ -28,7 +34,7 @@ class ui_editor extends ui_component{
     return area.getText();
   }
   void draw(){
-  
+    
   }
   void reSize(int x1, int y1, int x2, int y2){
     pane.setBounds(x1, y1, x2, y2);
