@@ -23,7 +23,7 @@ class GenomeAnalyzer {
     int i=0;
     while(true) {
       // i番目以降のgenomeから、targetを探し出す
-      // 見つからなかったら-1, 見つかったら見つかった場所
+      // 見つからなかったら-1, 見つかったら見つかった場所がindexOfで返される
       i = genome.indexOf(target, i);
       // -1だった場合もう以降にないのでループ終了
       if(i == -1 ) break;
