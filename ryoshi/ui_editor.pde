@@ -24,9 +24,9 @@ class ui_editor extends ui_component{
   void setText(String[] strs) {
     String result = "";
     for (String str : strs) {
-      if (!str.isEmpty()) {
+      
         result+=(str+"\n");
-      }
+      
     }
      area.setText(result);
   }

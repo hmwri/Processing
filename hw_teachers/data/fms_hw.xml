@@ -1,0 +1,66 @@
+<data>
+<name>先端メディアサイエンス学科</name>
+<teachers>
+<teacher>
+<name>宮下 芳明</name>
+<link>http://www.homei.com/</link>
+<major>インタラクション</major>
+<room>1017</room>
+<lectures>
+<lecture>エンタテイメントプログラミング演習</lecture>
+<lecture>コンテンツ・エンタテインメント概論</lecture>
+</lectures>
+</teacher>
+<teacher>
+<name>小松 孝徳</name>
+<link>https://sites.google.com/view/takanorikomatsu/</link>
+<major>認知心理学</major>
+<room>1114</room>
+<lectures>
+<lecture>アカデミックリテラシー</lecture>
+<lecture>メディア基礎実験</lecture>
+</lectures>
+</teacher>
+<teacher>
+<name>中村 聡史</name>
+<link>http://snakamura.org/</link>
+<major>ヒューマンインタフェース</major>
+<room>1007</room>
+<lectures>
+<lecture>プログラミング演習1</lecture>
+<lecture>プログラミング演習2</lecture>
+<lecture>メディア基礎実験</lecture>
+</lectures>
+</teacher>
+<teacher>
+<name>鈴木 正明</name>
+<link>https://www.meiji.ac.jp/ams/professor/6t5h7p00000qmg4d.html</link>
+<major>位相幾何学</major>
+<room>1002</room>
+<lectures>
+<lecture>線形代数1</lecture>
+<lecture>線形代数2</lecture>
+</lectures>
+</teacher>
+<teacher>
+<name>小林 稔</name>
+<link>https://www.koblab.org/</link>
+<major>CSCW</major>
+<room>1117</room>
+<lectures>
+<lecture>プログラミング演習1</lecture>
+<lecture>プログラミング演習2</lecture>
+</lectures>
+</teacher>
+<teacher>
+<name>阿原 一志</name>
+<link>http://www.aharalab.sakura.ne.jp/index.html</link>
+<major>トポロジー</major>
+<room>1110</room>
+<lectures>
+<lecture>微積分1</lecture>
+<lecture>微積分2</lecture>
+</lectures>
+</teacher>
+</teachers>
+</data>

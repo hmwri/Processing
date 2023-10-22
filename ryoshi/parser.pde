@@ -31,6 +31,7 @@ void setupPriorities() {
   priorities.put(tokenes.Or, Priority.LOGIC);
   priorities.put(tokenes.number, Priority.LOWEST);
   priorities.put(tokenes.bool, Priority.LOWEST);
+  priorities.put(tokenes.comma, Priority.LOWEST);
 }
 
 class Parser {

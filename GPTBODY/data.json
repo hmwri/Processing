@@ -1,0 +1,29 @@
+{
+"response" : "Alright, let's learn about Mt. Fuji together!",
+"response with gesture" : "Alright![clap hands] Let's learn about Mt. Fuji together![point forward]",
+"gestures" : [
+{
+"gesture name" : "clap hands",
+"procedure" : [
+"Move right upper arm and left upper arm in front of upper body.",
+"Move right lower arm and left lower arm towards each other to clap."
+],
+"keyFrames" : [
+{"t" : 0.5, "Right shoulder" : -45, "Left shoulder" : 45},
+{"t" : 1, "Right elbow" : -45, "Left elbow" : 45},
+{"t" : 1.5, "Right elbow" : 0, "Left elbow" : 0}
+]
+},
+{
+"gesture name" : "point forward",
+"procedure" : [
+"Extend right upper arm forward.",
+"Extend right lower arm forward."
+],
+"keyFrames" : [
+{"t" : 2, "Right shoulder" : -90},
+{"t" : 2.5, "Right elbow" : -180}
+]
+}
+]
+}

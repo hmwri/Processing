@@ -81,6 +81,32 @@ class result {
     shots = s;
   }
 }
+String storeCode = "";
+void keyPressed(){
+  
+  switch(key){
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+      getSample(key);
+    
+  }
+}
+void getSample(char c){
+  
+  if(c=='0'){
+    ui.editor.setText(storeCode);
+  }else{
+    storeCode = ui.editor.getText();
+    String[] SampleCode = loadStrings("data/Samples/"+c+".txt");
+    ui.editor.setText(SampleCode);
+  }
+  
+}
 
 class result_bit {
   String name;

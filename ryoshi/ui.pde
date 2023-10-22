@@ -14,7 +14,7 @@ class ui_master {
   }
   void init(){
     editor = new ui_editor(this, new ui_rect(0, headerh, width/2, height-headerh));
-    String[] code = loadStrings("test.txt");
+    String[] code = {""};
     editor.setText(code);
     uis.add(editor);
     right = new ui_right(headerh);

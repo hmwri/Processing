@@ -54,7 +54,7 @@ class lexer {
   }
 
   void skipComment() {
-    if (next() == EOF || next() == '\n')
+    if (next() == EOF || next() == '\n' || next() == ';')
       return;
     read();
     skipComment();
@@ -114,11 +114,13 @@ class lexer {
   }
 
   void l() {
+    println(now);
     skip();
     if (next() == EOF) {
       return;
     }
     char r = read();
+    
     if (isNum(r)) {
       result.add(new token(tokenes.number, readNum()));
       l();
@@ -130,6 +132,7 @@ class lexer {
       l();
       return;
     }
+    
     switch(r) {
 
     case ',':
@@ -201,7 +204,7 @@ class lexer {
       l();
       break;
     case '\n':
-      if (result.get(result.size() - 1).token != tokenes.semiColon) {
+      if (result.size()>0 && result.get(result.size() - 1).token != tokenes.semiColon) {
         result.add(new token(tokenes.semiColon));
       }
       l();
